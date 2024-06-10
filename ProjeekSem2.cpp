@@ -1,9 +1,11 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
-const int MAX_USERS = 100;        // Maksimal jumlah pengguna yang dapat disimpan
 const int MAX_PARKING_SPOTS = 10; // Maksimal jumlah lahan parkir yang tersedia
 
 struct User {
@@ -18,38 +20,30 @@ struct ParkingSpot {
 
 class ParkingSystem {
 private:
-    User users[MAX_USERS];
-    ParkingSpot parkingSpots[MAX_PARKING_SPOTS];
-    int userCount;
+    vector<User> users;
+    vector<ParkingSpot> parkingSpots;
 
 public:
-    ParkingSystem() : userCount(0) {
+    ParkingSystem() {
         initializeParkingSpots();
     }
 
     void initializeParkingSpots() {
         for (int i = 0; i < MAX_PARKING_SPOTS; i++) {
-            parkingSpots[i] = {"Lokasi " + to_string(i + 1), true};
+            parkingSpots.push_back({"Lokasi " + to_string(i + 1), true});
         }
     }
 
     void registrasi() {
-        if (userCount >= MAX_USERS) {
-            cout << "Tidak bisa registrasi pengguna baru, kapasitas penuh." << endl;
-            return;
-        }
-
         string username, password;
 
         cout << "Registrasi Pengguna Baru" << endl;
         cout << "Masukkan Username: ";
-        cin >> username;
+        getline(cin, username); // Menggunakan getline untuk membaca input
         cout << "Masukkan Password: ";
-        cin >> password;
+        getline(cin, password); // Menggunakan getline untuk membaca input
 
-        users[userCount] = {username, password};
-        userCount++;
-
+        users.push_back({username, password});
         cout << "Registrasi berhasil!" << endl;
     }
 
@@ -58,13 +52,13 @@ public:
 
         cout << "Login Pengguna" << endl;
         cout << "Masukkan Username: ";
-        cin >> username;
+        getline(cin, username); // Menggunakan getline untuk membaca input
         cout << "Masukkan Password: ";
-        cin >> password;
+        getline(cin, password); // Menggunakan getline untuk membaca input
 
-        for (int i = 0; i < userCount; i++) {
-            if (users[i].username == username && users[i].password == password) {
-                loggedInUser = users[i];
+        for (auto &user : users) {
+            if (user.username == username && user.password == password) {
+                loggedInUser = user;
                 return true;
             }
         }
@@ -76,16 +70,13 @@ public:
 
         cout << "Hapus Akun Pengguna" << endl;
         cout << "Masukkan Username: ";
-        cin >> username;
+        getline(cin, username); // Menggunakan getline untuk membaca input
         cout << "Masukkan Password: ";
-        cin >> password;
+        getline(cin, password); // Menggunakan getline untuk membaca input
 
-        for (int i = 0; i < userCount; i++) {
-            if (users[i].username == username && users[i].password == password) {
-                for (int j = i; j < userCount - 1; j++) {
-                    users[j] = users[j + 1];
-                }
-                userCount--;
+        for (auto it = users.begin(); it != users.end(); ++it) {
+            if (it->username == username && it->password == password) {
+                users.erase(it);
                 cout << "Akun berhasil dihapus!" << endl;
                 return;
             }
@@ -103,10 +94,14 @@ public:
     }
 
     void pesanLahanParkir(User &currentUser) {
+        srand(static_cast<unsigned int>(time(0))); 
+        int my_rand = rand();
+        string pilihanStr;
         int pilihan;
         tampilkanLahanParkir();
         cout << "Masukkan nomor lahan parkir yang ingin dipesan: ";
-        cin >> pilihan;
+        getline(cin, pilihanStr); // Menggunakan getline untuk membaca input
+        pilihan = stoi(pilihanStr); // Mengkonversi string menjadi integer
 
         if (pilihan < 1 || pilihan > MAX_PARKING_SPOTS || !parkingSpots[pilihan - 1].available) {
             cout << "Pilihan tidak valid atau lahan parkir sudah dipesan!" << endl;
@@ -114,11 +109,13 @@ public:
             parkingSpots[pilihan - 1].available = false;
             cout << "Lahan parkir di " << parkingSpots[pilihan - 1].location << " berhasil dipesan oleh " << currentUser.username << "!" << endl;
             cout << "Konfirmasi: Tempat parkir " << parkingSpots[pilihan - 1].location << " sudah dipesan untuk Anda." << endl;
+            cout << "Barcode Anda: " << my_rand << endl;
         }
     }
 };
 
 int main() {
+    string choiceStr;
     int choice;
     bool exitProgram = false;
     User loggedInUser;
@@ -133,11 +130,12 @@ int main() {
         cout << "5. Pesan Lahan Parkir" << endl;
         cout << "6. Keluar" << endl;
         cout << "Masukkan pilihan Anda: ";
-        cin >> choice;
+        getline(cin, choiceStr); // Menggunakan getline untuk membaca input
+        choice = stoi(choiceStr); // Mengkonversi string menjadi integer
 
         switch (choice) {
             case 1:
-                parkingSystem.registrasi();
+                parkingSystem.registrasi(); 
                 break;
             case 2:
                 if (parkingSystem.login(loggedInUser)) {

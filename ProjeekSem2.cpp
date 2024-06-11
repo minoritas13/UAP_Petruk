@@ -15,6 +15,7 @@ struct User {
 struct ParkingSpot {
     string location;
     bool available;
+    User *currentUser;  // Pointer untuk melacak pengguna yang memesan lahan parkir
 };
 
 template <typename TUser, typename TParkingSpot>
@@ -31,7 +32,7 @@ public:
 
     void initializeParkingSpots() {
         for (int i = 0; i < 10; i++) {
-            parkingSpots.push_back({"Lokasi " + to_string(i + 1), true});
+            parkingSpots.push_back({"Lokasi " + to_string(i + 1), true, nullptr});
         }
     }
 
@@ -77,7 +78,7 @@ public:
         getline(cin, password);
 
         for (auto it = users.begin(); it != users.end(); ++it) {
-            if (it->username == username && it->password == password) {
+            if (username == username && password == password) {
                 users.erase(it);
                 cout << "Akun berhasil dihapus!" << endl;
                 return;
@@ -108,10 +109,24 @@ public:
             cout << "Pilihan tidak valid atau lahan parkir sudah dipesan!" << endl;
         } else {
             parkingSpots[pilihan - 1].available = false;
+            parkingSpots[pilihan - 1].currentUser = &currentUser; // Simpan pengguna saat ini
             cout << "Lahan parkir di " << parkingSpots[pilihan - 1].location << " berhasil dipesan oleh " << currentUser.username << "!" << endl;
             cout << "Konfirmasi: Tempat parkir " << parkingSpots[pilihan - 1].location << " sudah dipesan untuk Anda." << endl;
             cout << "Barcode anda : " << my_rand << endl;
         }
+    }
+
+    void selesaikanParkir(TUser &currentUser) {
+        for (auto &spot : parkingSpots) {
+            if (spot.currentUser == &currentUser && !spot.available) {
+                spot.available = true;
+                spot.currentUser = nullptr;  
+                cout << "Lahan parkir di " << spot.location << " telah dikosongkan oleh " << currentUser.username << "." << endl;
+                notifikasiTempatParkirTersedia();
+                return;
+            }
+        }
+        cout << "Anda tidak memiliki lahan parkir yang sedang digunakan." << endl;
     }
 
     void tambahKeAntrian(TUser &currentUser) {
@@ -161,7 +176,8 @@ int main() {
             cout << "4. Pesan Lahan Parkir" << endl;
             cout << "5. Tambah ke Antrian" << endl;
             cout << "7. Cek Antrian" << endl;
-            cout << "8. Logout" << endl;
+            cout << "8. Selesaikan Parkir" << endl;
+            cout << "9. Logout" << endl;
         }
 
         cout << "Masukkan pilihan Anda: ";
@@ -204,6 +220,9 @@ int main() {
                     parkingSystem.cekAntrian();
                     break;
                 case 8:
+                    parkingSystem.selesaikanParkir(loggedInUser);
+                    break;
+                case 9:
                     isLoggedIn = false;
                     loggedInUser = {};
                     cout << "Anda telah logout." << endl;

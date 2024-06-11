@@ -22,7 +22,7 @@ class ParkingSystem {
 private:
     vector<TUser> users;
     vector<TParkingSpot> parkingSpots;
-    queue<TUser> waitingQueue; // Antrian untuk pengguna yang menunggu tempat parkir
+    queue<TUser> waitingQueue;
 
 public:
     ParkingSystem() {
@@ -30,7 +30,7 @@ public:
     }
 
     void initializeParkingSpots() {
-        for (int i = 0; i < 10; i++) {  // Menggunakan 10 sebagai jumlah maksimal tempat parkir
+        for (int i = 0; i < 10; i++) {
             parkingSpots.push_back({"Lokasi " + to_string(i + 1), true});
         }
     }
@@ -96,7 +96,7 @@ public:
     }
 
     void pesanLahanParkir(TUser &currentUser) {
-        srand((unsigned int) time(0)); 
+        srand((unsigned int) time(0));
         int my_rand = rand();
         int pilihan;
         tampilkanLahanParkir();
@@ -145,67 +145,73 @@ public:
 int main() {
     int choice;
     bool exitProgram = false;
+    bool isLoggedIn = false;
     User loggedInUser;
     ParkingSystem<User, ParkingSpot> parkingSystem;
 
     while (!exitProgram) {
         cout << "Selamat datang di sistem pemesanan tempat parkir" << endl;
-        cout << endl;
-        cout << "========== Menu ==========" << endl;
-        cout << "1. Registrasi" << endl;
-        cout << "2. Login" << endl;
-        cout << "3. Hapus Akun" << endl;
-        cout << "4. Tampilkan Lahan Parkir" << endl;
-        cout << "5. Pesan Lahan Parkir" << endl;
-        cout << "6. Tambah ke Antrian" << endl;
-        cout << "7. Cek Antrian" << endl;
-        cout << "8. Keluar" << endl;
-        cout << endl;
+
+        if (!isLoggedIn) {
+            cout << "1. Registrasi" << endl;
+            cout << "2. Login" << endl;
+            cout << "6. Keluar" << endl;
+        } else {
+            cout << "3. Tampilkan Lahan Parkir" << endl;
+            cout << "4. Pesan Lahan Parkir" << endl;
+            cout << "5. Tambah ke Antrian" << endl;
+            cout << "7. Cek Antrian" << endl;
+            cout << "8. Logout" << endl;
+        }
+
         cout << "Masukkan pilihan Anda: ";
         cin >> choice;
         cin.get();  // Membersihkan newline character dari buffer
 
-        switch (choice) {
-            case 1:
-                parkingSystem.registrasi();
-                break;
-            case 2:
-                if (parkingSystem.login(loggedInUser)) {
-                    cout << "Login berhasil! Anda bisa memesan tempat parkir sekarang." << endl;
-                } else {
-                    cout << "Login gagal! Username atau password salah." << endl;
-                }
-                break;
-            case 3:
-                parkingSystem.hapusAkun();
-                break;
-            case 4:
-                parkingSystem.tampilkanLahanParkir();
-                break;
-            case 5:
-                if (!loggedInUser.username.empty()) {
+        if (!isLoggedIn) {
+            switch (choice) {
+                case 1:
+                    parkingSystem.registrasi();
+                    break;
+                case 2:
+                    if (parkingSystem.login(loggedInUser)) {
+                        isLoggedIn = true;
+                        cout << "Login berhasil! Anda bisa memesan tempat parkir sekarang." << endl;
+                    } else {
+                        cout << "Login gagal! Username atau password salah." << endl;
+                    }
+                    break;
+                case 6:
+                    exitProgram = true;
+                    cout << "Terima kasih telah menggunakan sistem pemesanan tempat parkir." << endl;
+                    break;
+                default:
+                    cout << "Pilihan tidak valid!" << endl;
+                    break;
+            }
+        } else {
+            switch (choice) {
+                case 3:
+                    parkingSystem.tampilkanLahanParkir();
+                    break;
+                case 4:
                     parkingSystem.pesanLahanParkir(loggedInUser);
-                } else {
-                    cout << "Anda harus login terlebih dahulu untuk memesan lahan parkir." << endl;
-                }
-                break;
-            case 6:
-                if (!loggedInUser.username.empty()) {
+                    break;
+                case 5:
                     parkingSystem.tambahKeAntrian(loggedInUser);
-                } else {
-                    cout << "Anda harus login terlebih dahulu untuk masuk ke dalam antrian." << endl;
-                }
-                break;
-            case 7:
-                parkingSystem.cekAntrian();
-                break;
-            case 8:
-                exitProgram = true;
-                cout << "Terima kasih telah menggunakan sistem pemesanan tempat parkir." << endl;
-                break;
-            default:
-                cout << "Pilihan tidak valid!" << endl;
-                break;
+                    break;
+                case 7:
+                    parkingSystem.cekAntrian();
+                    break;
+                case 8:
+                    isLoggedIn = false;
+                    loggedInUser = {};
+                    cout << "Anda telah logout." << endl;
+                    break;
+                default:
+                    cout << "Pilihan tidak valid!" << endl;
+                    break;
+            }
         }
 
         parkingSystem.notifikasiTempatParkirTersedia();

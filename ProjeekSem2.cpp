@@ -151,7 +151,7 @@ int main() {
     while (!exitProgram) {
         cout << "Selamat datang di sistem pemesanan tempat parkir" << endl;
         cout << endl;
-        cout << "Menu" << endl;
+        cout << "========== Menu ==========" << endl;
         cout << "1. Registrasi" << endl;
         cout << "2. Login" << endl;
         cout << "3. Hapus Akun" << endl;

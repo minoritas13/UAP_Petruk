@@ -150,6 +150,8 @@ int main() {
 
     while (!exitProgram) {
         cout << "Selamat datang di sistem pemesanan tempat parkir" << endl;
+        cout << endl;
+        cout << "Menu" << endl;
         cout << "1. Registrasi" << endl;
         cout << "2. Login" << endl;
         cout << "3. Hapus Akun" << endl;
@@ -158,6 +160,7 @@ int main() {
         cout << "6. Tambah ke Antrian" << endl;
         cout << "7. Cek Antrian" << endl;
         cout << "8. Keluar" << endl;
+        cout << endl;
         cout << "Masukkan pilihan Anda: ";
         cin >> choice;
         cin.get();  // Membersihkan newline character dari buffer
